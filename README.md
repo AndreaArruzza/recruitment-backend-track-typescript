@@ -129,10 +129,10 @@ POSTGRES_DB= invoice_management
 Build, avvio, migrazione e seeding all’interno di Docker Compose:
 questa modalità è la più completa, in quanto esegue Applicazione + Database + Seeds all’interno di container Docker.
 
-- Development
+- Development =>
   docker compose -d --build
 
-- Production
+- Production => 
   BUILD_TARGET=production docker compose up -d --build
 
 ## App:      http://localhost:80/swagger-ui
@@ -250,26 +250,25 @@ Crea un nuovo utente.
 - GET /users/{id}
 Restituisce i dettagli di un utente.
 
-
 - PUT /users/{id} (solo ADMIN)
 Aggiorna i dati completi di un utente (inclusi email, password, ruolo).
 
 - PATCH /users/{id}
 Aggiorna dati non sensibili (nome, cognome, telefono).
 
-
 - DELETE /users/{id} (solo ADMIN)
 Elimina un utente per id.
 
 
-** Invoices**
+
+
+**Invoices**
 
 - GET /invoices
 Restituisce lista fatture (paginata e filtrabile per cliente, stato, data, codice fattura, importo).
 
 - POST /invoices (solo ADMIN)
 Crea una nuova fattura con eventuali items.
-
 
 - GET /invoices/{id}
 Recupera i dettagli di una fattura.
@@ -281,7 +280,9 @@ Aggiorna fattura esistente (compresi items).
 - DELETE /invoices/{id} (solo ADMIN)
 Elimina fattura per id.
 
-- 🧾 Tax Profiles
+
+
+**Tax Profiles**
 
 GET /user-tax-profiles
 Restituisce lista profili fiscali utente (paginata, filtrabile per utente, tipo, città, attivo).
@@ -298,7 +299,9 @@ Aggiorna un profilo fiscale utente.
 -- DELETE /user-tax-profiles/{id}
 Elimina un profilo fiscale utente.
 
-esempio autenticazione:
+
+
+**Esempio Autenticazione:**
 
 ```bash
 curl -sX POST http://localhost:3000/auth/login   -H 'content-type: application/json'   -d '{"email":"alice@example.com","password":"Password123!"}'
@@ -314,11 +317,14 @@ curl -sX GET 'http://localhost:3000/users?page=1&limit=10'   -H 'authorization: 
 - JWT access tokens con 'JWT_SECRET`.
 - Gli id non devono essere indicati in chiaro per una questione di sicurezza. E' stato utilizzato cripto-js. Utilizzare un encoder online per creare un token tipo => https://stackblitz.com/edit/cryptojs-aes-encrypt-decrypt?file=index.js
 
-inserire input => id key = mysecretkey
+inserire 
+- input => id che vogliamo cercare
+- key = mysecretkey
 
 Esempio:
-![alt text](image.png)
+- input = 1
+- key = mysecretkey
 
-Indicarlo come id nelle varie api
+Incollare il codice creato all'interno dell'api che vogliamo chiamare
 
 ---
