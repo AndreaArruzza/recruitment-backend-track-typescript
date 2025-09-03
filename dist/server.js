@@ -45,6 +45,7 @@ const logger_1 = require("./shared/logger");
 const user_route_js_1 = require("./route/user.route.js");
 const auth_route_js_1 = __importDefault(require("./route/auth.route.js"));
 const path_1 = __importDefault(require("path"));
+const invoice_route_1 = require("./route/invoice.route");
 const app = (0, express_1.default)();
 const openapiPath = path_1.default.join(__dirname, 'config', 'openapi', 'invoice-management-v1.yaml');
 const specText = fs_1.default.readFileSync(openapiPath, "utf8");
@@ -61,6 +62,7 @@ app.use(OpenApiValidator.middleware({
     validateResponses: true,
 }));
 app.use("/users", (0, user_route_js_1.buildUserRouter)());
+app.use("/invoices", (0, invoice_route_1.buildInvoiceRouter)());
 app.use("/auth", auth_route_js_1.default);
 // Error handler
 app.use((error, _req, res, _next) => {

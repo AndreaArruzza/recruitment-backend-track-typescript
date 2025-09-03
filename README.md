@@ -1,3 +1,6 @@
+
+
+
 Come avviare l’applicazione
 
 1. Alza i servizi base (DB, Adminer se presente)

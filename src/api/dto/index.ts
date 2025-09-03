@@ -3,12 +3,10 @@
  * Do not edit manually.
  * Invoice Management API
  * Spec-first per Users, Invoices, Tax Profiles, con pagination/filtri avanzati, errori Problem Details e sicurezza (JWT bearer + API Key).
-
  * OpenAPI spec version: 1.1.0
  */
 
 export * from './badRequestResponse';
-export * from './changePasswordBody';
 export * from './conflictResponse';
 export * from './createdId';
 export * from './errorDetails';
@@ -16,6 +14,7 @@ export * from './forbiddenResponse';
 export * from './getInvoicesParams';
 export * from './getUsersParams';
 export * from './invoiceCreateRequest';
+export * from './invoiceItem';
 export * from './invoiceResponse';
 export * from './invoiceStatus';
 export * from './invoiceUpdateRequest';

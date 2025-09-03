@@ -13,11 +13,14 @@ import type { PatchUserDto , AdminPutUserDto, UserFilter} from "../shared/dto/us
 import { BadRequestError, ConflictError, NotFoundError } from "../error/http-errors";
 import { UserService } from "./interface/user.service";
 import {logger} from "../shared/logger";
+import { PrismaClient } from "@prisma/client";
+
  
 
 export class UserServiceImpl implements UserService {
 
-  constructor(private  repository = new UserRepositoryImpl()) {}
+  constructor(private  repository = new UserRepositoryImpl(),
+  private prisma = new PrismaClient()) {}
 
   private log = logger.child({ module: "UserServiceImpl" });
 

@@ -54,8 +54,8 @@ export class UserRepositoryImpl implements UserRepository {
     return paginatedUsers;
   }
 
-  findById = async (id: bigint): Promise<User | null> => {
-    return (await this.prisma.user.findUnique({ where: { id } })) as User | null;
+  findById = async (id: bigint): Promise<User> => {
+    return (await this.prisma.user.findUnique({ where: { id } })) as User;
   }
 
   findByEmailRaw = async(email: string) => {

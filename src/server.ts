@@ -7,6 +7,7 @@ import { httpLogger } from "./shared/logger";
 import { buildUserRouter } from "./route/user.route.js";
 import authRouter from "./route/auth.route.js";
 import path from "path";
+import { buildInvoiceRouter } from "./route/invoice.route";
 
 
 const app = express();
@@ -35,6 +36,7 @@ app.use(
 
 
 app.use("/users", buildUserRouter());
+app.use("/invoices", buildInvoiceRouter());
 app.use("/auth", authRouter);
 
 

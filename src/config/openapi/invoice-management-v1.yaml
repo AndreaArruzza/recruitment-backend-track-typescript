@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Invoice Management API
   version: 1.1.0
-  description: >
+  description: 
     Spec-first per Users, Invoices, Tax Profiles, con pagination/filtri avanzati,
     errori Problem Details e sicurezza (JWT bearer + API Key).
 
@@ -21,7 +21,7 @@ paths:
       tags: [Auth]
       summary: Effettua il login (JWT)
       description: Ritorna access e refresh token
-      security: []   # PUBBLICO
+      security: []
       requestBody:
         required: true
         content:
@@ -101,6 +101,7 @@ paths:
     get:
       tags: [Users]
       operationId: getUserById
+      summary: restituisce un utente filtrato per id
       security: [ { bearerAuth: [] } ]
       parameters: [ { $ref: '#/components/parameters/id' } ]
       responses:
@@ -113,8 +114,8 @@ paths:
         "404": { $ref: '#/components/responses/NotFound' }
     put:
       tags: [Users]
-      operationId: updateUserById
-      summary: Aggiorna dti utente (anche dati sensibili come ruolo, password, email)
+      operationId: updateUserById (solo ADMIN)
+      summary: Aggiorna dati utente (anche dati sensibili come ruolo, password, email)
       security: [ { bearerAuth: [] } ]
       parameters: [ { $ref: '#/components/parameters/id' } ]
       requestBody:
@@ -156,6 +157,7 @@ paths:
     delete:
       tags: [Users]
       operationId: deleteUserById
+      summary: cancella un utente per id (solo ADMIN)
       security: [ { bearerAuth: [] } ]
       parameters: [ { $ref: '#/components/parameters/id' } ]
       responses:
@@ -190,7 +192,7 @@ paths:
           in: query
           schema: { type: string, format: date-time }
           description: Filtro per data emissione (<=)
-        - name: code
+        - name: invoiceNumber
           in: query
           schema: { type: string }
           description: Ricerca per codice fattura (contains/exact a scelta server)
@@ -213,9 +215,11 @@ paths:
               schema: { $ref: '#/components/schemas/PaginatedInvoices' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "400": { $ref: '#/components/responses/BadRequest' }
+        "404": { $ref: '#/components/responses/NotFound' }
     post:
       tags: [Invoices]
       operationId: createInvoice
+      summary: permette la creaziomne di una nuova fattura (solo ADMIN)
       security: [ { bearerAuth: [] } ]
       requestBody:
         required: true
@@ -230,14 +234,16 @@ paths:
               schema: { $ref: '#/components/schemas/CreatedId' }
         "401": { $ref: '#/components/responses/Unauthorized' }
         "400": { $ref: '#/components/responses/BadRequest' }
+        "404": { $ref: '#/components/responses/NotFound' }
         "409": { $ref: '#/components/responses/Conflict' }
 
   /invoices/{id}:
     get:
       tags: [Invoices]
-      operationId: getInvoice
+      operationId: getInvoiceById
+      summary: recupera fattura per id
       security: [ { bearerAuth: [] } ]
-      parameters: [ { $ref: '#/components/parameters/id' } ]
+      parameters: [ { $ref: '#/components/parameters/id'}]
       responses:
         "200":
           description: OK
@@ -248,7 +254,8 @@ paths:
         "404": { $ref: '#/components/responses/NotFound' }
     put:
       tags: [Invoices]
-      operationId: updateInvoice
+      operationId: updateInvoiceById
+      summary: modifica fattura per id (volendo anche elementi della fattura. Solo ADMIN)
       security: [ { bearerAuth: [] } ]
       parameters: [ { $ref: '#/components/parameters/id' } ]
       requestBody:
@@ -267,7 +274,8 @@ paths:
         "400": { $ref: '#/components/responses/BadRequest' }
     delete:
       tags: [Invoices]
-      operationId: deleteInvoice
+      operationId: deleteInvoiceById
+      summary: elimina fattura per id (solo ADMIN)
       security: [ { bearerAuth: [] } ]
       parameters: [ { $ref: '#/components/parameters/id' } ]
       responses:
@@ -504,68 +512,81 @@ components:
     # Invoices
     InvoiceResponse:
       type: object
-      required: [code, issueDate, currency, customerId, status, subtotal, taxTotal, grandTotal, createdAt, updatedAt]
+      required: [idInvoice, invoiceNumber, issueDate, currency, status, subtotal, taxTotal, grandTotal, createdAt, updatedAt]
       properties:
-        code: { type: string }
+        idInvoice: { type: string }
+        invoiceNumber: { type: string }
         issueDate: { type: string, format: date-time }
         dueDate: { type: string, format: date-time, nullable: true }
         currency: { type: string, example: "EUR" }
-        customerId: { type: string }
+        issuerUserId: { type: string }
         billToCustomerTaxProfileId: { type: string, nullable: true }
+        billToCustomerId: { type: string, nullable: true }
         shipToCustomerTaxProfileId: { type: string, nullable: true }
+        shipToCustomerId: { type: string, nullable: true }
         status: { $ref: '#/components/schemas/InvoiceStatus' }
         subtotal: { type: string, example: "100.00" }
         taxTotal: { type: string, example: "22.00" }
         grandTotal: { type: string, example: "122.00" }
-        paymentMethod:
-          type: string    
-          nullable: true
-          allOf:
-            - $ref: '#/components/schemas/PaymentMethod' 
+        paymentMethod: { $ref: '#/components/schemas/PaymentMethod' }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
+        items: { type: array,  nullable: true, items: { $ref: '#/components/schemas/InvoiceItem' } }
+
+    
+ # === Invoice Items ===
+    InvoiceItem:
+      type: object
+      required: [codProduct, description, quantity, unitPrice, taxRate, lineTotal]
+      properties:
+        codProduct: { type: string }
+        description: { type: string }
+        quantity: { type: string }
+        unitPrice: { type: string }
+        taxRate: { type: string }
+        lineTotal: { type: string }
 
     InvoiceCreateRequest:
       type: object
-      required: [code, issueDate, currency, customerId, subtotal, taxTotal, grandTotal]
+      required: [invoiceNumber, issueDate, currency, subtotal, taxTotal, grandTotal]
       properties:
-        code: { type: string }
+        invoiceNumber: { type: string }
         issueDate: { type: string, format: date-time }
         dueDate: { type: string, format: date-time, nullable: true }
         currency: { type: string }
-        customerId: { type: string }
+        issuerUserId: { type: string }
+        issuerTaxProfileId: { type: string }
         billToCustomerTaxProfileId: { type: string, nullable: true }
+        billToCustomerId: { type: string, nullable: true }
         shipToCustomerTaxProfileId: { type: string, nullable: true }
+        shipToCustomerId: { type: string, nullable: true }
         status: { $ref: '#/components/schemas/InvoiceStatus' }
         subtotal: { type: string }
         taxTotal: { type: string }
         grandTotal: { type: string }
-        paymentMethod:
-          type: string    
-          nullable: true
-          allOf:
-            - $ref: '#/components/schemas/PaymentMethod'
+        paymentMethod: { $ref: '#/components/schemas/PaymentMethod' }
+        items: { type: array,  nullable: true, items: { $ref: '#/components/schemas/InvoiceItem' } }
+
     InvoiceUpdateRequest:
       type: object
       properties:
         issueDate: { type: string, format: date-time }
         dueDate: { type: string, format: date-time, nullable: true }
         currency: { type: string }
-        customerId: { type: string }
         billToCustomerTaxProfileId: { type: string, nullable: true }
+        billToCustomerId: { type: string, nullable: true }
         shipToCustomerTaxProfileId: { type: string, nullable: true }
+        shipToCustomerId: { type: string, nullable: true }
         status: { $ref: '#/components/schemas/InvoiceStatus' }
         subtotal: { type: string }
         taxTotal: { type: string }
         grandTotal: { type: string }
-        paymentMethod:
-          type: string    
-          nullable: true
-          allOf:
-            - $ref: '#/components/schemas/PaymentMethod'
+        paymentMethod: { $ref: '#/components/schemas/PaymentMethod' }
+        items: { type: array,  nullable: true, items: { $ref: '#/components/schemas/InvoiceItem' } }
+
     InvoiceStatus:
       type: string
-      enum: [DRAFT, SENT, PAID, OVERDUE, CANCELED]
+      enum: [DRAFT, ISSUED, PAID, CANCELED]
 
     PaymentMethod:
       type: string

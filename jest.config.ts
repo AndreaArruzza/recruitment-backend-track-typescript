@@ -22,6 +22,7 @@ const config: JestConfigWithTsJest & Config = {
     '!src/**/*.d.ts', 
     '!src/server.ts'
   ],
+  collectCoverage: true,
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/src/tests/db-setup.ts'],

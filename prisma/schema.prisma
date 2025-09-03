@@ -1,6 +1,6 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+   binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -101,7 +101,7 @@ model Invoice {
   id            BigInt        @id @default(autoincrement()) @map("invoice_id")
   invoiceNumber BigInt        @unique @map("invoice_number")
   issueDate     DateTime
-  dueDate       DateTime      @map("due_date")
+  dueDate       DateTime?      @map("due_date")
   status        InvoiceStatus @default(DRAFT)
 
   // Riferimenti
@@ -111,11 +111,11 @@ model Invoice {
   issuerTaxProfileId BigInt
   issuerTaxProfile   UserTaxProfile @relation("InvoiceIssuerTaxProfile", fields: [issuerTaxProfileId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
-  billToCustomerId BigInt
-  billToCustomer   Customer @relation("BillToCustomer", fields: [billToCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  billToCustomerId BigInt?
+  billToCustomer   Customer? @relation("BillToCustomer", fields: [billToCustomerId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
-  billToCustomerTaxProfileId BigInt
-  billToCustomerTaxProfile   CustomerTaxProfile @relation("BillToCustomerTaxProfile", fields: [billToCustomerTaxProfileId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  billToCustomerTaxProfileId BigInt?
+  billToCustomerTaxProfile   CustomerTaxProfile? @relation("BillToCustomerTaxProfile", fields: [billToCustomerTaxProfileId], references: [id], onDelete: Restrict, onUpdate: Cascade)
 
   shipToCustomerId BigInt?
   shipToCustomer   Customer? @relation("ShipToCustomer", fields: [shipToCustomerId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -141,10 +141,10 @@ model Invoice {
 
 model InvoiceItem {
   id        BigInt  @id @default(autoincrement()) @map("invoice_item_id")
-  invoiceId BigInt  @unique @map("invoice_id")
+  invoiceId BigInt  @map("invoice_id")
   invoice   Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 
-  codProduct  String?
+  codProduct  String
   description String
   quantity    Decimal @db.Decimal(18, 4)
   unitPrice   Decimal @db.Decimal(18, 4)
@@ -186,7 +186,7 @@ enum InvoiceStatus {
   DRAFT
   ISSUED
   PAID
-  VOID
+  CANCELED
 }
 
 enum PaymentMethod {
