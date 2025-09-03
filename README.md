@@ -101,6 +101,29 @@ POSTGRES_DB= invoice_management
 
 ```
 
+```env.test
+
+NODE_ENV=test
+LOG_LEVEL=info
+DATABASE_URL=postgresql://user:password@localhost:5433/test_invoice_management?schema=public
+
+
+```
+
+```env.prod
+
+NODE_ENV=production
+PORT=3000
+LOG_LEVEL=info
+JWT_SECRET=change-me
+DATABASE_URL=postgresql://user:password@db:5432/invoice_management?schema=public
+POSTGRES_USER= user
+POSTGRES_PASSWORD= password
+POSTGRES_DB= invoice_management
+
+
+```
+
 ### Run con Docker Compose
 
 Build, avvio, migrazione e seeding all’interno di Docker Compose:
